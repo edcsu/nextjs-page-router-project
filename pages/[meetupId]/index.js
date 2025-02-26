@@ -1,6 +1,8 @@
+import { MongoClient, ObjectId } from 'mongodb'
 import MeetUpDetail from '../../components/meetups/MeetupDetail'
 
 const MeetUpDetails = (props) => {
+    console.log(props)
     return (
         <>
             <MeetUpDetail
@@ -14,36 +16,48 @@ const MeetUpDetails = (props) => {
 }
 
 export async function getStaticPaths() {
+    const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.hyowl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+
+    const client = await MongoClient.connect(uri)
+    
+    const db = client.db(process.env.DB_NAME)
+
+    const meetupsCollection = db.collection('meetups')
+
+    const meetups = await meetupsCollection.find({}, { _id: 1}).toArray()
+
     return {
         fallback: false,
-        paths: [
-            {
-                params: {
-                    meetupId: '67dc5555-bb68-4d5b-84df-d93169c9aaeb'
-                }
-            },
-            {
-                params: {
-                    meetupId: 'a36b4e87-0571-4ea1-a947-7d770c90184c'
-                }
+        paths: meetups.map(meetup => ({
+            params: {
+                meetupId: meetup._id.toString()
             }
-        ]
+        }))   
     }
 }
 
 export async function getStaticProps(context) {
     // fetch data for a single meetup
+    const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.hyowl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+
+    const client = await MongoClient.connect(uri)
+    
+    const db = client.db(process.env.DB_NAME)
+
+    const meetupsCollection = db.collection('meetups')
 
     const meetupId = context.params.meetupId
     
+    const selectedMettup =  await meetupsCollection.findOne({ _id: new ObjectId(meetupId)})
+
     return {
         props: {
             meetup : {
-                id: meetupId,
-                image : "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-                title : "First meetup",
-                address :"Kampala, Uganda",
-                description : "Meetup description"
+                title: selectedMettup.title,
+                address: selectedMettup.address,
+                image: selectedMettup.image,
+                description: selectedMettup.description,
+                id: selectedMettup._id.toString(),
             }
         }
     }
