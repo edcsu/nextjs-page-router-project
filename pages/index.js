@@ -1,21 +1,5 @@
+import { MongoClient } from 'mongodb'
 import MeetupList from '../components/meetups/MeetupList'
-
-const DUMMY_MEETUPS = [
-    {
-        id: '67dc5555-bb68-4d5b-84df-d93169c9aaeb',
-        title: 'Next JS in Kampala',
-        image: 'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-        address: 'Kampala, Uganda',
-        description: 'Our first meetup!!!!'
-    },
-    {
-        id: 'a36b4e87-0571-4ea1-a947-7d770c90184c',
-        title: 'React JS in Mbarara',
-        image: 'https://images.pexels.com/photos/3184306/pexels-photo-3184306.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-        address: 'Mbarara, Uganda',
-        description: 'Reacting to the best JS devs'
-    },
-]
 
 const HomePage = (props) => {
     return (
@@ -38,10 +22,26 @@ const HomePage = (props) => {
 // }
 
 export async function getStaticProps() {
+    const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.hyowl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+
+    const client = await MongoClient.connect(uri)
     
+    const db = client.db(process.env.DB_NAME)
+
+    const meetupsCollection = db.collection('meetups')
+
+    const meetups = await meetupsCollection.find().toArray()
+
+    client.close()
     return {
         props: {
-            meetups: DUMMY_MEETUPS
+            meetups: meetups.map(meetup => ({
+                title: meetup.title,
+                address: meetup.address,
+                image: meetup.image,
+                description: meetup.description,
+                id: meetup._id.toString(),
+            }))
         },
         revalidate: 1
     }
