@@ -1,15 +1,14 @@
-import Image from "next/image"
+import MeetUpDetail from '../../components/meetups/MeetupDetail'
 
 const MeetUpDetails = () => {
     return (
         <>
-            <img
-                src="https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
-                alt="First meetup" 
+            <MeetUpDetail
+                image="https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
+                title="First meetup"
+                address="Kampala, Uganda"
+                description="Meetup description"
             />
-            <h1>First meetup</h1>
-            <address>Kampala, Uganda</address>
-            <p>Meetup description</p>
         </>
     )
 }
