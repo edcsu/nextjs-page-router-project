@@ -3,7 +3,6 @@ import MeetUpDetail from '../../components/meetups/MeetupDetail'
 import Head from 'next/head'
 
 const MeetUpDetails = (props) => {
-    console.log(props)
     return (
         <>
             <Head>
@@ -35,7 +34,7 @@ export async function getStaticPaths() {
     const meetups = await meetupsCollection.find({}, { _id: 1}).toArray()
 
     return {
-        fallback: false,
+        fallback: 'blocking',
         paths: meetups.map(meetup => ({
             params: {
                 meetupId: meetup._id.toString()
